@@ -38,6 +38,14 @@ public abstract class AbstractPlayer {
 	public ArrayList<Tile> discardedTiles() {
 		return _discardedTiles;
 	}
+	
+	public Tile newTile() {
+		int n = _selectableTiles.size();
+		if (n % 3 == 2) {
+			return _selectableTiles.get(n - 1);
+		}
+		return null;
+	}
 
 	public Seat seat() {
 		return _seat;
@@ -59,14 +67,18 @@ public abstract class AbstractPlayer {
 	}
 
 	public void sortSelectableTiles(boolean enableEvent) {
+		// Sort without the new tile
+		Tile newTile = newTile();
+		_selectableTiles.remove(newTile);
 		Collections.sort(_selectableTiles);
+		_selectableTiles.add(newTile);
 		
 		for (Tile tile : _selectableTiles) {
 			TileObject tileObj = tileRenderer().tileObject(tile);
 			tileObj.setTransformSelectable(this, enableEvent);
 			
 			// Only one event will be set.
-			if (enableEvent) enableEvent = false;			
+			if (enableEvent) enableEvent = false;
 		}
 	}
 
