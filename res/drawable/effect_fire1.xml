@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/effect_fire1_0006" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0007" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0008" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0009" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0010" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0011" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0012" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0013" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0014" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0015" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0016" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0017" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0018" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0019" android:duration="200" />
+	<item android:drawable="@drawable/effect_fire1_0020" android:duration="200" />
+	<item android:drawable="@drawable/effect_fire1_0021" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0022" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0023" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0024" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0025" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0026" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0027" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0028" android:duration="200" />
+    <item android:drawable="@drawable/effect_fire1_0029" android:duration="200" />
+</animation-list>

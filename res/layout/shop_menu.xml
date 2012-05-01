@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bitmap_bg_how"
+    android:orientation="vertical" >
+    
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight="68"
+	    android:orientation="horizontal" >
+	
+	    <LinearLayout
+	        android:id="@+id/headerLeftLayout"
+	        android:layout_width="0dip"
+	        android:layout_height="match_parent"
+	        android:layout_weight="134" >
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        android:id="@+id/headerCenterLayout"
+	        android:layout_width="0dip"
+	        android:layout_height="match_parent"
+	        android:layout_weight="500"
+	        android:orientation="vertical"
+	        android:paddingTop="12dp"
+	        android:paddingBottom="4dp" >
+	
+	        <ImageView
+	            android:id="@+id/headerTitleView"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:adjustViewBounds="true"
+	            android:src="@drawable/mj_ui_shop_title_t" />
+	
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        android:id="@+id/headerRightLayout"
+	        android:layout_width="0dip"
+	        android:layout_height="match_parent"
+	        android:layout_weight="134" >
+	
+	        <ImageButton
+	            android:id="@+id/backButton"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:adjustViewBounds="true"
+	            android:background="@android:color/transparent"
+	            android:scaleType="fitCenter"
+	            android:src="@drawable/mj_ui_system_back_t" android:paddingBottom="4dp" android:paddingTop="8dp"/>
+	
+	    </LinearLayout>
+	</LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/bodyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="327"
+        android:orientation="vertical" >
+
+        <ScrollView
+            android:id="@+id/bodyScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <LinearLayout
+                android:id="@+id/bodyScrollLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/linearLayout1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:orientation="vertical" >
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/imageView1"
+                    android:layout_width="0dip"
+                    android:layout_height="match_parent"
+                    android:layout_weight="13"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/mj_ui_shop_scroll_t" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:orientation="vertical" >
+                </LinearLayout>
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/footerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="117"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Footer"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    </LinearLayout>
+
+</LinearLayout>

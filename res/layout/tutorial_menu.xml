@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bitmap_bg_how"
+    android:orientation="vertical" >
+    
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight="68"
+	    android:orientation="horizontal" >
+	
+	    <LinearLayout
+	        android:id="@+id/headerLeftLayout"
+	        android:layout_width="0dip"
+	        android:layout_height="match_parent"
+	        android:layout_weight="134" >
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        android:id="@+id/headerCenterLayout"
+	        android:layout_width="0dip"
+	        android:layout_height="match_parent"
+	        android:layout_weight="500"
+	        android:orientation="vertical"
+	        android:paddingTop="12dp"
+	        android:paddingBottom="4dp" >
+	
+	        <ImageView
+	            android:id="@+id/headerTitleView"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:src="@drawable/mj_ui_how_title_t" />
+	
+	    </LinearLayout>
+	
+	    <LinearLayout
+	        android:id="@+id/headerRightLayout"
+	        android:layout_width="0dip"
+	        android:layout_height="match_parent"
+	        android:layout_weight="134" android:paddingBottom="4dp" android:paddingTop="8dp">
+	
+	        <ImageButton
+	            android:id="@+id/backButton"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:background="@android:color/transparent"
+	            android:scaleType="fitCenter"
+	            android:src="@drawable/mj_ui_system_back_t" />
+	
+	    </LinearLayout>
+	</LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/bodyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="327"
+        android:orientation="vertical" >
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dip"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/imageButton1"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_gravity="center"
+            android:layout_weight="2"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mj_ui_result_select01_t" android:padding="6dp"/>
+
+        <ImageButton
+            android:id="@+id/achievementButton"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_gravity="center"
+            android:layout_weight="2"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mj_ui_result_select02_t" android:padding="6dp"/>
+
+        <ImageButton
+            android:id="@+id/imageButton3"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_gravity="center"
+            android:layout_weight="2"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/mj_ui_result_select03_t" android:paddingTop="6dp" android:paddingBottom="2dp"/>
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="wrap_content"
+            android:layout_height="0dip"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/footerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="117"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:text="Footer"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    </LinearLayout>
+
+</LinearLayout>
