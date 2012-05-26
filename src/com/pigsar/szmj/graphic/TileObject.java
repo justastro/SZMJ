@@ -6,7 +6,7 @@ import java.util.List;
 import android.opengl.Matrix;
 import android.util.Log;
 
-import com.pigsar.szmj.library.AbstractPlayer;
+import com.pigsar.szmj.library.Player;
 import com.pigsar.szmj.library.Tile;
 import com.pigsar.szmj.library.UserPlayer;
 
@@ -101,11 +101,11 @@ public class TileObject {
 		_animEventEnabled = false;
 	}
 	
-	public void setTransformSelectable(AbstractPlayer player, boolean enableEvent) {
+	public void setTransformSelectable(Player player, boolean enableEvent) {
 		setTransformSelectable(player, enableEvent, 0.1f);
 	}
 	
-	public void setTransformSelectable(AbstractPlayer player, boolean enableEvent, float animationTime) {
+	public void setTransformSelectable(Player player, boolean enableEvent, float animationTime) {
 		int index = player.selectableTiles().indexOf(tile());				assert(index >= 0);
 		float tx = TileRenderer.USER_PLAYER_TILE_X_START + (index * TileRenderer.TILE_WIDTH_RELAXED);
 		float ty = TileRenderer.TILE_HEIGHT_2;
@@ -116,17 +116,17 @@ public class TileObject {
 		//	tx += TileRenderer.TILE_NEWLY_DRAWED_OFFSET;
 		//}
 		
-		if (player.seat() == AbstractPlayer.Seat.Bottom) {
+		if (player.seat() == Player.Seat.Bottom) {
 			seatAngle = 0;
 			tz = TileRenderer.USER_PLAYER_TILE_Z;
 			ty = TileRenderer.USER_PLAYER_TILE_Y;
-		} else if (player.seat() == AbstractPlayer.Seat.Right) {
+		} else if (player.seat() == Player.Seat.Right) {
 			seatAngle = 90;
 			tz = TileRenderer.PLAYER_TILE_Z_HORI;
-		} else if (player.seat() == AbstractPlayer.Seat.Top) {
+		} else if (player.seat() == Player.Seat.Top) {
 			seatAngle = 180;
 			tz = TileRenderer.PLAYER_TILE_Z_VERT;
-		} else if (player.seat() == AbstractPlayer.Seat.Left) {
+		} else if (player.seat() == Player.Seat.Left) {
 			seatAngle = 270;
 			tz = TileRenderer.PLAYER_TILE_Z_HORI;
 		}
@@ -143,7 +143,7 @@ public class TileObject {
 		setAnimationEnd(transform, 0.1f, enableEvent);
 	}
 	
-	public void setTransformDrawFromPool(AbstractPlayer player) {
+	public void setTransformDrawFromPool(Player player) {
 		int index = player.selectableTiles().indexOf(tile());				assert(index >= 0);
 		float tx = TileRenderer.USER_PLAYER_TILE_X_START + (index * TileRenderer.TILE_WIDTH_RELAXED) +
 				   TileRenderer.TILE_NEWLY_DRAWED_OFFSET;
@@ -151,17 +151,17 @@ public class TileObject {
 		float tz = 0;
 		float seatAngle = 0;
 		
-		if (player.seat() == AbstractPlayer.Seat.Bottom) {
+		if (player.seat() == Player.Seat.Bottom) {
 			seatAngle = 0;
 			tz = TileRenderer.USER_PLAYER_TILE_Z;
 			ty = TileRenderer.USER_PLAYER_TILE_Y;
-		} else if (player.seat() == AbstractPlayer.Seat.Right) {
+		} else if (player.seat() == Player.Seat.Right) {
 			seatAngle = 90;
 			tz = TileRenderer.PLAYER_TILE_Z_HORI;
-		} else if (player.seat() == AbstractPlayer.Seat.Top) {
+		} else if (player.seat() == Player.Seat.Top) {
 			seatAngle = 180;
 			tz = TileRenderer.PLAYER_TILE_Z_VERT;
-		} else if (player.seat() == AbstractPlayer.Seat.Left) {
+		} else if (player.seat() == Player.Seat.Left) {
 			seatAngle = 270;
 			tz = TileRenderer.PLAYER_TILE_Z_HORI;
 		}
@@ -175,14 +175,14 @@ public class TileObject {
 		Matrix.setIdentityM(transform, 0);
 		Matrix.rotateM(transform, 0, seatAngle, 0, 1, 0);
 		Matrix.translateM(transform, 0, tx, ty, tz);
-		if (player.seat() == AbstractPlayer.Seat.Bottom) {
+		if (player.seat() == Player.Seat.Bottom) {
 			// For user player show tiles facing camera
 			Matrix.rotateM(transform, 0, -90 + TileRenderer.USER_PLAYER_TILE_ROT_X, 1, 0, 0);
 		}
 		setAnimationEnd(transform, 0.15f);
 	}
 	
-	public void setTransformDiscarded(AbstractPlayer player) {
+	public void setTransformDiscarded(Player player) {
 		int index = player.discardedTiles().indexOf(tile());
 		if (index < 0) index = player.discardedTiles().size();
 		
@@ -193,16 +193,16 @@ public class TileObject {
 		float tz = 0;
 		float seatAngle = 0;
 		
-		if (player.seat() == AbstractPlayer.Seat.Bottom) {
+		if (player.seat() == Player.Seat.Bottom) {
 			seatAngle = 0;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_VERT;
-		} else if (player.seat() == AbstractPlayer.Seat.Right) {
+		} else if (player.seat() == Player.Seat.Right) {
 			seatAngle = 90;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_HORI;
-		} else if (player.seat() == AbstractPlayer.Seat.Top) {
+		} else if (player.seat() == Player.Seat.Top) {
 			seatAngle = 180;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_VERT;
-		} else if (player.seat() == AbstractPlayer.Seat.Left) {
+		} else if (player.seat() == Player.Seat.Left) {
 			seatAngle = 270;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_HORI;
 		}

@@ -3,7 +3,7 @@ package com.pigsar.szmj.graphic;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -86,7 +86,7 @@ public class TileFaceRenderer {
 		_textureBuffer.position(0);
 	}
 
-	public void render(GL10 gl, ArrayList<Tile> tiles) {
+	public void render(GL10 gl, List<Tile> tiles) {
 		// bind the previously generated texture
 		gl.glBindTexture(GL10.GL_TEXTURE_2D, _textures[0]);
 		

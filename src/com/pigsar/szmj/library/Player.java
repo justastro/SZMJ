@@ -2,11 +2,12 @@ package com.pigsar.szmj.library;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.pigsar.szmj.graphic.TileObject;
 import com.pigsar.szmj.graphic.TileRenderer;
 
-public abstract class AbstractPlayer {
+public abstract class Player {
 
 	public static final Seat[] SEAT_VALUES = Seat.values();
 
@@ -15,28 +16,53 @@ public abstract class AbstractPlayer {
 	}
 
 	protected GameController _gameCtrl;
-	protected ArrayList<Tile> _tiles = new ArrayList<Tile>(38);
-	protected ArrayList<Tile> _selectableTiles = new ArrayList<Tile>(14);
-	protected ArrayList<Tile> _discardedTiles = new ArrayList<Tile>(38);
+	protected Evaluator _evaluator = new Evaluator();
+	
+	protected List<Tile> _tiles = new ArrayList<Tile>(38);
+	protected List<Tile> _selectableTiles = new ArrayList<Tile>(14);
+	protected List<Tile> _discardedTiles = new ArrayList<Tile>(38);
+	protected List<SpecialMove> _specialMoves = new ArrayList<SpecialMove>(5);
+	protected List<SpecialMove> _availableSpecialMoves = new ArrayList<SpecialMove>(5);
+	protected SpecialMove _selectedSpecialMove;
 	protected Seat _seat;
 
-	public AbstractPlayer(GameController controller) {
+	public Player(GameController controller) {
 		_gameCtrl = controller;
 	}
+	
+	public Evaluator evaluator() {
+		return _evaluator;
+	}
 
-	public ArrayList<Tile> tiles() {
+	public List<Tile> tiles() {
 		_tiles.clear();
 		_tiles.addAll(_selectableTiles);
 		_tiles.addAll(_discardedTiles);
 		return _tiles;
 	}
 
-	public ArrayList<Tile> selectableTiles() {
+	public List<Tile> selectableTiles() {
 		return _selectableTiles;
 	}
 
-	public ArrayList<Tile> discardedTiles() {
+	public List<Tile> discardedTiles() {
 		return _discardedTiles;
+	}
+	
+	public List<SpecialMove> specialMoves() {
+		return _specialMoves;
+	}
+	
+//	public void clearAvailableSpecialMove() {
+//		_availableSpecialMoves.clear();
+//	}
+	
+	public SpecialMove selectedSpecialMove() {
+		return _selectedSpecialMove;
+	}
+	
+	public void setSelectedSpecialMove(SpecialMove specialMove) {
+		_selectedSpecialMove = specialMove;
 	}
 	
 	public Tile newTile() {
@@ -93,9 +119,6 @@ public abstract class AbstractPlayer {
 	/**
 	 * @Note The implementation should consider the flow to change state from SelectActionTile
 	 * to ShowActionTile.
-	 * 
-	 * @return True if the implementation selected action tile, otherwise false to wait
-	 * for input.
 	 */
 	public abstract void selectActionTile();
 
@@ -103,6 +126,8 @@ public abstract class AbstractPlayer {
 		removeTileFromAllList(tile);
 		_discardedTiles.add(tile);
 		Collections.sort(_selectableTiles);
+		
+		_gameCtrl.setActionTile(tile);
 		
 		TileObject tileObj = tileRenderer().tileObject(tile);
 		tileObj.setTransformDiscarded(this);
@@ -118,4 +143,13 @@ public abstract class AbstractPlayer {
 		if (_discardedTiles.remove(tile)) return;
 	}
 
+	//=========================================================================
+	
+	public List<SpecialMove> genereateAvailableSpecialMoves() {
+		_availableSpecialMoves.clear();
+		
+		_gameCtrl.evaluator().checkSpecialMoves(this, )
+		
+		return _availableSpecialMoves;
+	}
 }

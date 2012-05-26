@@ -1,13 +1,13 @@
 package com.pigsar.szmj.graphic;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.Matrix;
 
-import com.pigsar.szmj.library.AbstractPlayer;
+import com.pigsar.szmj.library.Player;
 import com.pigsar.szmj.library.GameController;
 import com.pigsar.szmj.library.Tile;
 
@@ -95,8 +95,8 @@ public class TileRenderer {
 		
 		setCamera(gl);
 		
-		for (AbstractPlayer player : _renderMgr.gameController().players()) {
-			ArrayList<Tile> tiles = player.tiles();
+		for (Player player : _renderMgr.gameController().players()) {
+			List<Tile> tiles = player.tiles();
 			
 			for (Tile tile : tiles) {
 				tileObject(tile).tick(time);

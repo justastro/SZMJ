@@ -23,6 +23,10 @@ public class Tile implements Comparable<Tile> {
 		return pattern().compareTo(another.pattern());
 	}
 	
+	public boolean isBonusTile() {
+		return (_pattern.type() == TilePattern.Type.Flower);
+	}
+	
 //	public boolean isChanged() {
 //		return _changed;
 //	}

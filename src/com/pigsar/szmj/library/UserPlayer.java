@@ -10,7 +10,7 @@ import android.opengl.Matrix;
 import android.view.MotionEvent;
 
 
-public class UserPlayer extends AbstractPlayer {
+public class UserPlayer extends Player {
 	
 	private Tile _dragTile;
 	private float _dragStartWinY;

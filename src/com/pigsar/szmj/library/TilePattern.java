@@ -1,5 +1,14 @@
 package com.pigsar.szmj.library;
 
+
+/***
+ * A pattern represents a unique identification in a tile, but not include
+ * repeated duplication. For example, there exist only one Bamboo[1] pattern,
+ * shared by four tiles in a pool.
+ * 
+ * @author justinleung
+ *
+ */
 public class TilePattern implements Comparable<TilePattern> {
 
 	public enum Type {
@@ -21,8 +30,14 @@ public class TilePattern implements Comparable<TilePattern> {
 	}
 	
 	public enum FlowerNumber {
-		Weather,
-		Plant,
+		WeatherSpring,
+		WeatherSummer,
+		WeatherAutumn,
+		WeatherWinter,
+		PlantPlum,
+		PlantOrchid,
+		PlantChrysanthemum,
+		PlantBamboo,
 	}
 	
 	
@@ -69,6 +84,11 @@ public class TilePattern implements Comparable<TilePattern> {
 		}
 		return result;
 	}
+	
+	public boolean equals(TilePattern another) {
+		return (compareTo(another) == 0);
+	}
+	
 }
 
 

@@ -2,7 +2,7 @@ package com.pigsar.szmj.library;
 
 import com.pigsar.szmj.library.GameController.State;
 
-public class ComputerPlayer extends AbstractPlayer {
+public class ComputerPlayer extends Player {
 
 	public ComputerPlayer(GameController controller) {
 		super(controller);
