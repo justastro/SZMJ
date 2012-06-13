@@ -6,6 +6,7 @@ import java.util.List;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.pigsar.szmj.library.Player;
 import com.pigsar.szmj.library.GameController;
@@ -31,27 +32,38 @@ public class TileRenderer {
 	public static final float TILE_HEIGHT_RELAXED = TILE_HEIGHT * TILE_RELAX_RATIO;
 	public static final float TILE_HEIGHT_2_RELAXED = TILE_HEIGHT_2 * TILE_RELAX_RATIO;
 	public static final float TILE_HEIGHT_SELECTED = TILE_HEIGHT / 3;
-	public static final float TILE_NEWLY_DRAWED_OFFSET = TILE_WIDTH / 4;
+	public static final float TILE_HAND_TYPE_SPACE = TILE_WIDTH / 4;
 	
 	//private static final float CAMERA_POS_Y = 96.0f;
 	//private static final float CAMERA_POS_Z = 30.0f;
-	public static final float CAMERA_POS_Y = 72.0f;
-	public static final float CAMERA_POS_Z = 22.5f;
+	public static final float CAMERA_POS_Y = 77.0f;
+	public static final float CAMERA_POS_Z = 23f;
 	public static final float CAMERA_CENTER_Y = 0.0f;
 	public static final float CAMERA_CENTER_Z = 2.0f;
 	public static final float CAMERA_FOV = (float)(Math.PI/4);				// 45 degree
 	public static final float CAMERA_NEAR = 0.1f;
 	public static final float CAMERA_FAR = 1000.0f;
 	
-	public static final float PLAYER_TILE_Z_HORI = 33.0f;
+	
+	public static final float PLAYER_TILE_X_START =
+		((GameController.PLAYER_TILE_NUM * TILE_WIDTH_RELAXED) +
+		TILE_HAND_TYPE_SPACE + (TILE_WIDTH_RELAXED) * 2) * -0.5f + TILE_WIDTH_2;
+	public static final float PLAYER_TILE_X_MELDED_END =
+		((GameController.PLAYER_TILE_NUM * TILE_WIDTH_RELAXED) +
+		TILE_HAND_TYPE_SPACE + (TILE_WIDTH_RELAXED) * 2) * 0.5f + TILE_WIDTH_2;
+	//public static final float PLAYER_TILE_Y = TileRenderer.TILE_HEIGHT_2;
+	public static final float PLAYER_TILE_Y = 0;
+	//public static final float PLAYER_TILE_Z_HORI = 33.0f;
+	public static final float PLAYER_TILE_Z_HORI = 40.0f;
 	public static final float PLAYER_TILE_Z_VERT = 25.0f;
-	public static final float USER_PLAYER_TILE_X_START =
-		(GameController.PLAYER_TILE_NUM * TILE_WIDTH_RELAXED + TILE_NEWLY_DRAWED_OFFSET) * -0.5f +
-		TILE_WIDTH_2;
-	//private static final float USER_PLAYER_TILE_Y = 40.0f;
-	public static final float USER_PLAYER_TILE_Y = 36.0f;
-	//private static final float USER_PLAYER_TILE_Z = 27.0f;
-	public static final float USER_PLAYER_TILE_Z = 24.0f;
+	
+	public static final float USER_PLAYER_TILE_X_START = PLAYER_TILE_X_START + TILE_WIDTH_2;
+	public static final float USER_PLAYER_TILE_X_MELDED_END = PLAYER_TILE_X_MELDED_END + (TILE_WIDTH * 4);
+	public static final float USER_PLAYER_TILE_Y = 37f;
+	public static final float USER_PLAYER_TILE_Y_MELDED = PLAYER_TILE_Y + 8;
+	public static final float USER_PLAYER_TILE_Z = 25.65f;
+	public static final float USER_PLAYER_TILE_Z_MELDED = USER_PLAYER_TILE_Z + TILE_HEIGHT_2;
+	
 	public static final float USER_PLAYER_TILE_ROT_X =
 		(float)(Math.atan2(CAMERA_POS_Z - CAMERA_CENTER_Z, CAMERA_POS_Y - CAMERA_CENTER_Y) * 180 / Math.PI);
 	
@@ -95,20 +107,22 @@ public class TileRenderer {
 		
 		setCamera(gl);
 		
-		for (Player player : _renderMgr.gameController().players()) {
-			List<Tile> tiles = player.tiles();
-			
-			for (Tile tile : tiles) {
-				tileObject(tile).tick(time);
-			}
-			
-			_tileBodyRenderer.render(gl, tiles);
-			_tileFaceRenderer.render(gl, tiles);
+		// Note: Do not use iterator to loop, since the list content will be changed
+		// during tick.
+		List<Tile> usedTiles = _renderMgr.gameController().tilePool().usedTiles();
+		for (int i = 0; i < usedTiles.size(); ++i) {
+			Tile tile = usedTiles.get(i);
+			Log.d("TileRenderer.render", "Tick start: " + i);
+			tileObject(tile).tick(time);
+			Log.d("TileRenderer.render", "Tick end: " + i);
 		}
+		
+		_tileBodyRenderer.render(gl, usedTiles);
+		_tileFaceRenderer.render(gl, usedTiles);
 	}
 	
 	public TileObject tileObject(Tile tile) {
-		TileObject obj = _tileObjHash.get(tile);	assert(obj != null);
+		TileObject obj = _tileObjHash.get(tile);				assert(obj != null);
 		if (obj == null) {
 			obj = new TileObject(tile);
 			obj.addListener(_renderMgr.gameController());

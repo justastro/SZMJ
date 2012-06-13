@@ -24,6 +24,15 @@ public class UserPlayer extends Player {
 	public void selectActionTile() {
 		// Do nothing. Wait for user input.
 	}
+
+	@Override
+	public void selectSpecialMove() {
+		// Do nothing. Wait for user input.
+		
+		// TEMP
+		_plannedSpecialMove = _evaluator.planningSpecialMoves().get(0);		// TODO: AI
+		_gameCtrl.transitState(State.ShowSpecialMoveLabel);
+	}
 	
 	public void processEvent(MotionEvent event) {
 		int action = event.getAction();
@@ -32,6 +41,7 @@ public class UserPlayer extends Player {
 		TileRenderer tr = _gameCtrl.renderManager().tileRenderer();
 		
 		if (_gameCtrl.state() == State.SelectActionTile) {
+			
 			// Select tile
 			if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
 				Tile tile = selectTile(winX, winY);
@@ -69,6 +79,9 @@ public class UserPlayer extends Player {
 					}
 				}
 			}
+		}
+		else if (_gameCtrl.state() == State.SelectSpecialMove) {
+		
 		}
 	}
 	

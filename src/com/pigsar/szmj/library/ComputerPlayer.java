@@ -10,10 +10,18 @@ public class ComputerPlayer extends Player {
 
 	@Override
 	public void selectActionTile() {
-		if (selectableTiles().size() > 0) {
-			_gameCtrl.transitState(State.ShowActionTile);
-			discardTile(selectableTiles().get(0));
-		}
+		assert(!selectableTiles().isEmpty());
+		
+		discardTile(selectableTiles().get(0));								// TODO: AI
+		_gameCtrl.transitState(State.ShowActionTile);
+	}
+
+	@Override
+	public void selectSpecialMove() {
+		assert(!_evaluator.planningSpecialMoves().isEmpty());
+		
+		_plannedSpecialMove = _evaluator.planningSpecialMoves().get(0);		// TODO: AI
+		_gameCtrl.transitState(State.ShowSpecialMoveLabel);
 	}
 
 }

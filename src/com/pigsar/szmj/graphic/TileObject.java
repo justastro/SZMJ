@@ -7,10 +7,18 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.pigsar.szmj.library.Player;
+import com.pigsar.szmj.library.SpecialMove;
 import com.pigsar.szmj.library.Tile;
-import com.pigsar.szmj.library.UserPlayer;
 
 public class TileObject {
+	
+	enum HandTileType {
+		MELDED_SPECIAL_MOVE, SELECTABLE, NEWLY_DRAWN
+	}
+	
+	enum TileDisplay {
+		MELDED, CONCEALED, CAMERA 
+	}
 	
 	private Tile _tile;
 	private float _animEndTime;
@@ -19,6 +27,10 @@ public class TileObject {
 	private float[] _animStartPos = new float[3];
 	private float[] _animEndPos = new float[3];
 	private List<AnimationEventListener> _listeners = new ArrayList<AnimationEventListener>();
+	
+	// For transform functions internal use only
+	private float[] _handPos = new float[3];
+	private float _handAngle;
 	
 	public float[] transform = new float[16];
 	
@@ -50,7 +62,7 @@ public class TileObject {
 		float ratio = _animTime / _animEndTime;
 		if (ratio >= 1) {
 			if (_animEventEnabled) {
-				Log.w("MJ - TileObject", String.format("Update! AnimEndTime = %.3f", _animEndTime));
+				//Log.w("MJ - TileObject", String.format("Update! AnimEndTime = %.3f", _animEndTime));
 			}
 			
 			ratio = 1;
@@ -69,7 +81,7 @@ public class TileObject {
 	}
 	
 	private static float lerp(float start, float end, float ratio) {
-		return start + (end-start) * ratio;
+		return start + (end - start) * ratio;
 	}
 	
 	public void setAnimationStart(float[] startTransform) {
@@ -107,78 +119,25 @@ public class TileObject {
 	
 	public void setTransformSelectable(Player player, boolean enableEvent, float animationTime) {
 		int index = player.selectableTiles().indexOf(tile());				assert(index >= 0);
-		float tx = TileRenderer.USER_PLAYER_TILE_X_START + (index * TileRenderer.TILE_WIDTH_RELAXED);
-		float ty = TileRenderer.TILE_HEIGHT_2;
-		float tz = 0;
-		float seatAngle = 0;
 		
-		//if (index == player.selectableTiles().size() - 1) {
-		//	tx += TileRenderer.TILE_NEWLY_DRAWED_OFFSET;
-		//}
-		
-		if (player.seat() == Player.Seat.Bottom) {
-			seatAngle = 0;
-			tz = TileRenderer.USER_PLAYER_TILE_Z;
-			ty = TileRenderer.USER_PLAYER_TILE_Y;
-		} else if (player.seat() == Player.Seat.Right) {
-			seatAngle = 90;
-			tz = TileRenderer.PLAYER_TILE_Z_HORI;
-		} else if (player.seat() == Player.Seat.Top) {
-			seatAngle = 180;
-			tz = TileRenderer.PLAYER_TILE_Z_VERT;
-		} else if (player.seat() == Player.Seat.Left) {
-			seatAngle = 270;
-			tz = TileRenderer.PLAYER_TILE_Z_HORI;
-		}
+		initHandValues(player, HandTileType.SELECTABLE, index);		
 		
 		setAnimationStart(transform);
-		Matrix.setIdentityM(transform, 0);
-		Matrix.rotateM(transform, 0, seatAngle, 0, 1, 0);
-		Matrix.translateM(transform, 0, tx, ty, tz);
-		//if (player.seat() == AbstractPlayer.Seat.Bottom) {
-		if (player instanceof UserPlayer) {
-			// For user player show tiles facing camera
-			Matrix.rotateM(transform, 0, -90 + TileRenderer.USER_PLAYER_TILE_ROT_X, 1, 0, 0);
-		}
+		resetTransformFromHandValues(player, TileDisplay.CAMERA);
 		setAnimationEnd(transform, 0.1f, enableEvent);
 	}
 	
 	public void setTransformDrawFromPool(Player player) {
 		int index = player.selectableTiles().indexOf(tile());				assert(index >= 0);
-		float tx = TileRenderer.USER_PLAYER_TILE_X_START + (index * TileRenderer.TILE_WIDTH_RELAXED) +
-				   TileRenderer.TILE_NEWLY_DRAWED_OFFSET;
-		float ty = TileRenderer.TILE_HEIGHT_2;
-		float tz = 0;
-		float seatAngle = 0;
+		initHandValues(player, HandTileType.NEWLY_DRAWN, index);
 		
-		if (player.seat() == Player.Seat.Bottom) {
-			seatAngle = 0;
-			tz = TileRenderer.USER_PLAYER_TILE_Z;
-			ty = TileRenderer.USER_PLAYER_TILE_Y;
-		} else if (player.seat() == Player.Seat.Right) {
-			seatAngle = 90;
-			tz = TileRenderer.PLAYER_TILE_Z_HORI;
-		} else if (player.seat() == Player.Seat.Top) {
-			seatAngle = 180;
-			tz = TileRenderer.PLAYER_TILE_Z_VERT;
-		} else if (player.seat() == Player.Seat.Left) {
-			seatAngle = 270;
-			tz = TileRenderer.PLAYER_TILE_Z_HORI;
-		}
-		
-		// TEMP initial transform
+		// Initial transform
 		Matrix.setIdentityM(transform, 0);
-		Matrix.rotateM(transform, 0, seatAngle, 0, 1, 0);
-		Matrix.translateM(transform, 0, tx, ty, tz - 5 );
+		Matrix.rotateM(transform, 0, _handAngle, 0, 1, 0);
+		Matrix.translateM(transform, 0, _handPos[0], _handPos[1], _handPos[2] - 5 );
 		
 		setAnimationStart(transform);
-		Matrix.setIdentityM(transform, 0);
-		Matrix.rotateM(transform, 0, seatAngle, 0, 1, 0);
-		Matrix.translateM(transform, 0, tx, ty, tz);
-		if (player.seat() == Player.Seat.Bottom) {
-			// For user player show tiles facing camera
-			Matrix.rotateM(transform, 0, -90 + TileRenderer.USER_PLAYER_TILE_ROT_X, 1, 0, 0);
-		}
+		resetTransformFromHandValues(player, TileDisplay.CAMERA);
 		setAnimationEnd(transform, 0.15f);
 	}
 	
@@ -191,29 +150,132 @@ public class TileObject {
 					TileRenderer.TILE_WIDTH_RELAXED);
 		float ty = TileRenderer.TILE_HEIGHT_2;
 		float tz = 0;
-		float seatAngle = 0;
+		float handAngle = 0;
 		
 		if (player.seat() == Player.Seat.Bottom) {
-			seatAngle = 0;
+			handAngle = 0;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_VERT;
 		} else if (player.seat() == Player.Seat.Right) {
-			seatAngle = 90;
+			handAngle = 90;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_HORI;
 		} else if (player.seat() == Player.Seat.Top) {
-			seatAngle = 180;
+			handAngle = 180;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_VERT;
 		} else if (player.seat() == Player.Seat.Left) {
-			seatAngle = 270;
+			handAngle = 270;
 			tz = TileRenderer.DISCARDED_TILE_CENTER_OFFSET_Z_HORI;
 		}
 		
+		// Arrange to rows
 		tz += (index/8) * TileRenderer.TILE_HEIGHT_RELAXED;
 		
 		setAnimationStart(transform);
 		Matrix.setIdentityM(transform, 0);
-		Matrix.rotateM(transform, 0, seatAngle, 0, 1, 0);
+		Matrix.rotateM(transform, 0, handAngle, 0, 1, 0);
 		Matrix.translateM(transform, 0, tx, ty, tz);
 		Matrix.rotateM(transform, 0, -90, 1, 0, 0);
 		setAnimationEnd(transform, 0.2f);
 	}
+	
+	public void setTransformMeldedSpecialMove(Player player) {
+		// Find the special tiles index
+		boolean found = false;
+		int index = 0;
+		int count = player.specialMoves().size();
+		for (int i = 0; i < count; ++i) {
+			List<Tile> moveTiles = player.specialMoves().get(i).sortedTiles(); 
+			if (!moveTiles.contains(tile())) {
+				index += moveTiles.size();
+			} else {
+				index += moveTiles.indexOf(tile());
+				found = true;
+				break;
+			}
+		}
+		assert(found);
+		
+		initHandValues(player, HandTileType.MELDED_SPECIAL_MOVE, index);
+		
+		setAnimationStart(transform);
+		resetTransformFromHandValues(player, TileDisplay.MELDED);
+		setAnimationEnd(transform, 0.15f);
+	}
+	
+	private void initHandValues(Player player, HandTileType type, int handTileIndex) {
+		if (type == HandTileType.SELECTABLE || type == HandTileType.NEWLY_DRAWN)
+		{
+			// Basic pos X from special tiles
+			if (player.seat() == Player.Seat.Bottom) {
+				_handPos[0] = TileRenderer.USER_PLAYER_TILE_X_START;
+			} else {
+				_handPos[0] = TileRenderer.PLAYER_TILE_X_START;
+			}
+			
+			_handPos[0] += handTileIndex * TileRenderer.TILE_WIDTH_RELAXED;
+		
+			if (type == HandTileType.NEWLY_DRAWN) {
+				_handPos[0] += TileRenderer.TILE_HAND_TYPE_SPACE;
+			}
+		}
+		else if (type == HandTileType.MELDED_SPECIAL_MOVE )
+		{
+			// Find tile index
+			int totalSpecialMoveTileCount = 0;
+			for (SpecialMove move : player.specialMoves()) {
+				totalSpecialMoveTileCount += move.sortedTiles().size();
+			}
+			
+			// Pos X for special tiles
+			if (player.seat() == Player.Seat.Bottom) {
+				_handPos[0] = TileRenderer.USER_PLAYER_TILE_X_MELDED_END;
+			} else {
+				_handPos[0] = TileRenderer.PLAYER_TILE_X_MELDED_END;
+			}
+			
+			int i = totalSpecialMoveTileCount - handTileIndex;
+			_handPos[0] -= (/*TileRenderer.TILE_WIDTH +*/ (i * TileRenderer.TILE_WIDTH_RELAXED));
+		} else {
+			assert(false);
+		}
+		
+		// Other hand values
+		if (player.seat() == Player.Seat.Bottom) {
+			_handAngle = 0;
+			if (type == HandTileType.MELDED_SPECIAL_MOVE) {
+				_handPos[1] = TileRenderer.USER_PLAYER_TILE_Y_MELDED;
+				_handPos[2] = TileRenderer.USER_PLAYER_TILE_Z_MELDED;
+			} else {
+				_handPos[1] = TileRenderer.USER_PLAYER_TILE_Y;
+				_handPos[2] = TileRenderer.USER_PLAYER_TILE_Z;
+			}
+		} else if (player.seat() == Player.Seat.Right) {
+			_handAngle = 90;
+			_handPos[1] = TileRenderer.PLAYER_TILE_Y;
+			_handPos[2] = TileRenderer.PLAYER_TILE_Z_HORI;
+		} else if (player.seat() == Player.Seat.Top) {
+			_handAngle = 180;
+			_handPos[1] = TileRenderer.PLAYER_TILE_Y;
+			_handPos[2] = TileRenderer.PLAYER_TILE_Z_VERT;
+		} else if (player.seat() == Player.Seat.Left) {
+			_handAngle = 270;
+			_handPos[1] = TileRenderer.PLAYER_TILE_Y;
+			_handPos[2] = TileRenderer.PLAYER_TILE_Z_HORI;
+		}
+	}
+	
+	private void resetTransformFromHandValues(Player player, TileDisplay display) {
+		Matrix.setIdentityM(transform, 0);
+		Matrix.rotateM(transform, 0, _handAngle, 0, 1, 0);
+		Matrix.translateM(transform, 0, _handPos[0], _handPos[1], _handPos[2]);
+		
+		if (display == TileDisplay.CAMERA) {
+			if (player.seat() == Player.Seat.Bottom) {
+				// Set tile face camera
+				Matrix.rotateM(transform, 0, -90 + TileRenderer.USER_PLAYER_TILE_ROT_X, 1, 0, 0);
+			}
+		} else if (display == TileDisplay.MELDED) {
+			Matrix.rotateM(transform, 0, -90, 1, 0, 0);
+		}
+	}
+	
 }

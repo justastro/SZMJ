@@ -12,7 +12,7 @@ import com.pigsar.szmj.library.Tile;
 
 public class TileBodyRenderer {
 	
-	private static float s_vertices[] = {
+	private static float VERTICES[] = {
 		TileRenderer.TILE_WIDTH_2, -TileRenderer.TILE_HEIGHT_2, -TileRenderer.TILE_LENGTH_2,		// back
 		TileRenderer.TILE_WIDTH_2, TileRenderer.TILE_HEIGHT_2, -TileRenderer.TILE_LENGTH_2,
 		-TileRenderer.TILE_WIDTH_2, TileRenderer.TILE_HEIGHT_2, -TileRenderer.TILE_LENGTH_2,
@@ -35,48 +35,48 @@ public class TileBodyRenderer {
 		-TileRenderer.TILE_WIDTH_2, -TileRenderer.TILE_HEIGHT_2, -TileRenderer.TILE_LENGTH_2
 	};
 	
-	private static final float TILE_FACE_TEX_NZ_LEFT	= (536.0f / 1024.0f);
-	private static final float TILE_FACE_TEX_NZ_RIGHT 	= ((536.0f + 80.0f) / 1024.0f);
-	private static final float TILE_FACE_TEX_NZ_TOP 	= (904.0f / 1024.0f);
-	private static final float TILE_FACE_TEX_NZ_BOTTOM	= ((904.0f + 112.0f) / 1024.0f);
-	private static final float TILE_FACE_TEX_PX_LEFT 	= (408.0f / 1024.0f);
-	private static final float kTileFaceTexPXRight	= ((408.0f + 80.0f) / 1024.0f);
-	private static final float kTileFaceTexPXTop	= (904.0f / 1024.0f);
-	private static final float kTileFaceTexPXBottom	= ((904.0f + 112.0f) / 1024.0f);
-	private static final float kTileFaceTexNXLeft 	= (664.0f / 1024.0f);
-	private static final float kTileFaceTexNXRight 	= ((664.0f + 80.0f) / 1024.0f);
-	private static final float kTileFaceTexNXTop	= (904.0f / 1024.0f);
-	private static final float kTileFaceTexNXBottom	= ((904.0f + 112.0f) / 1024.0f);
-	private static final float kTileFaceTexPYLeft	= (792.0f / 1024.0f);
-	private static final float kTileFaceTexPYRight	= ((792.0f + 80.0f) / 1024.0f);
-	private static final float kTileFaceTexPYTop	= (920.0f / 1024.0f);
-	private static final float kTileFaceTexPYBottom = ((920.0f + 80.0f) / 1024.0f);
-	private static final float kTileFaceTexNYLeft	= (920.0f / 1024.0f);
-	private static final float kTileFaceTexNYRight	= ((920.0f + 80.0f) / 1024.0f);
-	private static final float kTileFaceTexNYTop	= (920.0f / 1024.0f);
-	private static final float kTileFaceTexNYBottom	= ((920.0f + 80.0f) / 1024.0f);
+	private static final float TEX_NZ_LEFT		= (536.0f / 1024.0f);
+	private static final float TEX_NZ_RIGHT 	= ((536.0f + 80.0f) / 1024.0f);
+	private static final float TEX_NZ_TOP 		= (904.0f / 1024.0f);
+	private static final float TEX_NZ_BOTTOM	= ((904.0f + 112.0f) / 1024.0f);
+	private static final float TEX_PX_LEFT 		= (408.0f / 1024.0f);
+	private static final float TEX_PX_RIGHT		= ((408.0f + 80.0f) / 1024.0f);
+	private static final float TEX_PX_TOP		= (904.0f / 1024.0f);
+	private static final float TEX_PX_BOTTOM	= ((904.0f + 112.0f) / 1024.0f);
+	private static final float TEX_NX_LEFT 		= (664.0f / 1024.0f);
+	private static final float TEX_NX_RIGHT 	= ((664.0f + 80.0f) / 1024.0f);
+	private static final float TEX_NX_TOP		= (904.0f / 1024.0f);
+	private static final float TEX_NX_BOTTOM	= ((904.0f + 112.0f) / 1024.0f);
+	private static final float TEX_PY_LEFT		= (792.0f / 1024.0f);
+	private static final float TEX_PY_RIGHT		= ((792.0f + 80.0f) / 1024.0f);
+	private static final float TEX_PY_TOP		= (920.0f / 1024.0f);
+	private static final float TEX_PY_BOTTOM	= ((920.0f + 80.0f) / 1024.0f);
+	private static final float TEX_NY_LEFT		= (920.0f / 1024.0f);
+	private static final float TEX_NY_RIGHT		= ((920.0f + 80.0f) / 1024.0f);
+	private static final float TEX_NY_TOP		= (920.0f / 1024.0f);
+	private static final float TEX_NY_BOTTOM	= ((920.0f + 80.0f) / 1024.0f);
 	
-	private static float s_texture[] = {
-		TILE_FACE_TEX_NZ_RIGHT, TILE_FACE_TEX_NZ_BOTTOM,
-		TILE_FACE_TEX_NZ_RIGHT, TILE_FACE_TEX_NZ_TOP,
-		TILE_FACE_TEX_NZ_LEFT, TILE_FACE_TEX_NZ_TOP,
-		TILE_FACE_TEX_NZ_LEFT, TILE_FACE_TEX_NZ_BOTTOM,
-		kTileFaceTexPYRight, kTileFaceTexPYTop,
-		kTileFaceTexPYRight, kTileFaceTexPYBottom,
-		kTileFaceTexPYLeft, kTileFaceTexPYBottom,
-		kTileFaceTexPYLeft, kTileFaceTexPYTop,
-		kTileFaceTexNYRight, kTileFaceTexNYBottom,
-		kTileFaceTexNYRight, kTileFaceTexNYTop,
-		kTileFaceTexNYLeft, kTileFaceTexNYTop,
-		kTileFaceTexNYLeft, kTileFaceTexNYBottom,
-		kTileFaceTexPXRight, kTileFaceTexPXTop,
-		TILE_FACE_TEX_PX_LEFT, kTileFaceTexPXTop,
-		TILE_FACE_TEX_PX_LEFT, kTileFaceTexPXBottom,
-		kTileFaceTexPXRight, kTileFaceTexPXBottom,
-		kTileFaceTexNXLeft, kTileFaceTexNXTop,
-		kTileFaceTexNXRight, kTileFaceTexNXTop,
-		kTileFaceTexNXRight, kTileFaceTexNXBottom,
-		kTileFaceTexNXLeft, kTileFaceTexNXBottom
+	private static final float TEX_COORDS[] = {
+		TEX_NZ_RIGHT, TEX_NZ_BOTTOM,
+		TEX_NZ_RIGHT, TEX_NZ_TOP,
+		TEX_NZ_LEFT, TEX_NZ_TOP,
+		TEX_NZ_LEFT, TEX_NZ_BOTTOM,
+		TEX_PY_RIGHT, TEX_PY_TOP,
+		TEX_PY_RIGHT, TEX_PY_BOTTOM,
+		TEX_PY_LEFT, TEX_PY_BOTTOM,
+		TEX_PY_LEFT, TEX_PY_TOP,
+		TEX_NY_RIGHT, TEX_NY_BOTTOM,
+		TEX_NY_RIGHT, TEX_NY_TOP,
+		TEX_NY_LEFT, TEX_NY_TOP,
+		TEX_NY_LEFT, TEX_NY_BOTTOM,
+		TEX_PX_RIGHT, TEX_PX_TOP,
+		TEX_PX_LEFT, TEX_PX_TOP,
+		TEX_PX_LEFT, TEX_PX_BOTTOM,
+		TEX_PX_RIGHT, TEX_PX_BOTTOM,
+		TEX_NX_LEFT, TEX_NX_TOP,
+		TEX_NX_RIGHT, TEX_NX_TOP,
+		TEX_NX_RIGHT, TEX_NX_BOTTOM,
+		TEX_NX_LEFT, TEX_NX_BOTTOM
 	};
 
 	private FloatBuffer _textureBuffer;	// buffer holding the texture coordinates
@@ -95,17 +95,17 @@ public class TileBodyRenderer {
 		
 		// Vertex buffer
 		// A float has 4 bytes so we allocate for each coordinate 4 bytes
-		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(s_vertices.length * 4);
+		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(VERTICES.length * 4);
 		byteBuffer.order(ByteOrder.nativeOrder());
 		_vertexBuffer = byteBuffer.asFloatBuffer();			// allocates the memory from the byte buffer
-		_vertexBuffer.put(s_vertices);						// fill the vertexBuffer with the vertices
+		_vertexBuffer.put(VERTICES);						// fill the vertexBuffer with the vertices
 		_vertexBuffer.position(0);							// set the cursor position to the beginning of the buffer
 		
 		// Texture buffer
-		byteBuffer = ByteBuffer.allocateDirect(s_texture.length * 4);
+		byteBuffer = ByteBuffer.allocateDirect(TEX_COORDS.length * 4);
 		byteBuffer.order(ByteOrder.nativeOrder());
 		_textureBuffer = byteBuffer.asFloatBuffer();
-		_textureBuffer.put(s_texture);
+		_textureBuffer.put(TEX_COORDS);
 		_textureBuffer.position(0);
 	}
 	

@@ -12,41 +12,34 @@ import com.pigsar.szmj.library.Tile;
 
 public class TileFaceRenderer {
 	
-	private static final float kTileWidth = 3.0f;
-	private static final float kTileWidth2 = kTileWidth/2;
-	private static final float kTileHeight = 4.2f;
-	private static final float kTileHeight2 = kTileHeight/2;
-	private static final float kTileLength = 2.0f;
-	private static final float kTileLength2 = kTileLength/2;
-	
-	private static float s_vertices[] = {
-		kTileWidth2, -kTileHeight2, kTileLength2,
-		kTileWidth2, kTileHeight2, kTileLength2,
-		-kTileWidth2, kTileHeight2, kTileLength2,
-		-kTileWidth2, -kTileHeight2, kTileLength2
+	private static float VERTICES[] = {
+		TileRenderer.TILE_WIDTH_2, -TileRenderer.TILE_HEIGHT_2, TileRenderer.TILE_LENGTH_2,
+		TileRenderer.TILE_WIDTH_2, TileRenderer.TILE_HEIGHT_2, TileRenderer.TILE_LENGTH_2,
+		-TileRenderer.TILE_WIDTH_2, TileRenderer.TILE_HEIGHT_2, TileRenderer.TILE_LENGTH_2,
+		-TileRenderer.TILE_WIDTH_2, -TileRenderer.TILE_HEIGHT_2, TileRenderer.TILE_LENGTH_2
 	};
 	
-	private static final float kTileTextureSize		= 1024.0f;
-	private static final float kTileTextureLeft		= 18.0f;
-	private static final float kTileTextureTop		= 2.0f;
-	private static final float kTileTextureWidth	= 92.0f;
-	private static final float kTileTextureHeight	= 124.0f;
-	private static final float kTileFaceTexLeft		= (kTileTextureLeft / kTileTextureSize);
-	private static final float kTileFaceTexRight	= ((kTileTextureLeft + kTileTextureWidth) / kTileTextureSize);
-	private static final float kTileFaceTexTop		= (kTileTextureTop / kTileTextureSize);
-	private static final float kTileFaceTexBottom	= ((kTileTextureTop + kTileTextureHeight) / kTileTextureSize);
+	private static final float TEX_SIZE				= 1024.0f;
+	private static final float TEX_LEFT				= 18.0f;
+	private static final float TEX_TOP				= 2.0f;
+	private static final float TILE_TEX_WIDTH		= 92.0f;
+	private static final float TILE_TEX_HEIGHT		= 124.0f;
+	private static final float TEX_LEFT_UV			= (TEX_LEFT / TEX_SIZE);
+	private static final float TEX_RIGHT_UV			= ((TEX_LEFT + TILE_TEX_WIDTH) / TEX_SIZE);
+	private static final float TEX_TOP_UV			= (TEX_TOP / TEX_SIZE);
+	private static final float TEX_BOTTOM_UV		= ((TEX_TOP + TILE_TEX_HEIGHT) / TEX_SIZE);
 	
-	private static float s_texture[] = {
-		kTileFaceTexRight, kTileFaceTexBottom,
-		kTileFaceTexRight, kTileFaceTexTop,
-		kTileFaceTexLeft, kTileFaceTexTop,
-		kTileFaceTexLeft, kTileFaceTexBottom
-	};
+//	private static float TEX_COORDS[] = {
+//		TEX_RIGHT_RATIO, TEX_BOTTOM_RATIO,
+//		TEX_RIGHT_RATIO, TEX_TOP_RATIO,
+//		TEX_LEFT_RATIO, TEX_TOP_RATIO,
+//		TEX_LEFT_RATIO, TEX_BOTTOM_RATIO
+//	};
 	
 	private TileRenderer _tileRenderer;
 
-	private FloatBuffer _textureBuffer;	// buffer holding the texture coordinates
-	private FloatBuffer _vertexBuffer;	// buffer holding the vertices
+	private FloatBuffer _textureBuffer;			// buffer holding the texture coordinates
+	private FloatBuffer _vertexBuffer;			// buffer holding the vertices
 	private int[] _textures = new int[1];
 	
 	public TileFaceRenderer(TileRenderer tileRenderer) {
@@ -57,10 +50,10 @@ public class TileFaceRenderer {
 		_textures[0] = TextureManager.instance().load(R.drawable.mahjong_a);
 		
 		// a float has 4 bytes so we allocate for each coordinate 4 bytes
-		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(s_vertices.length * 4);
+		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(VERTICES.length * 4);
 		byteBuffer.order(ByteOrder.nativeOrder());
 		_vertexBuffer = byteBuffer.asFloatBuffer();			// allocates the memory from the byte buffer
-		_vertexBuffer.put(s_vertices);						// fill the vertexBuffer with the vertices
+		_vertexBuffer.put(VERTICES);						// fill the vertexBuffer with the vertices
 		_vertexBuffer.position(0);							// set the cursor position to the beginning of the buffer
 		
 		float[] textures = new float[42 * 8];
@@ -69,14 +62,14 @@ public class TileFaceRenderer {
 			float paddingY = (i / 8) * (1.0f / 8.0f);
 			int b = i * 8;
 			
-			textures[b+0] = paddingX + kTileFaceTexRight;
-			textures[b+1] = paddingY + kTileFaceTexBottom;
-			textures[b+2] = paddingX + kTileFaceTexRight;
-			textures[b+3] = paddingY + kTileFaceTexTop;
-			textures[b+4] = paddingX + kTileFaceTexLeft;
-			textures[b+5] = paddingY + kTileFaceTexTop;
-			textures[b+6] = paddingX + kTileFaceTexLeft;
-			textures[b+7] = paddingY + kTileFaceTexBottom;
+			textures[b+0] = paddingX + TEX_RIGHT_UV;
+			textures[b+1] = paddingY + TEX_BOTTOM_UV;
+			textures[b+2] = paddingX + TEX_RIGHT_UV;
+			textures[b+3] = paddingY + TEX_TOP_UV;
+			textures[b+4] = paddingX + TEX_LEFT_UV;
+			textures[b+5] = paddingY + TEX_TOP_UV;
+			textures[b+6] = paddingX + TEX_LEFT_UV;
+			textures[b+7] = paddingY + TEX_BOTTOM_UV;
 		}
 		
 		byteBuffer = ByteBuffer.allocateDirect(textures.length * 4);

@@ -16,18 +16,19 @@ public abstract class Player {
 	}
 
 	protected GameController _gameCtrl;
-	protected Evaluator _evaluator = new Evaluator();
+	protected Evaluator _evaluator;
 	
 	protected List<Tile> _tiles = new ArrayList<Tile>(38);
 	protected List<Tile> _selectableTiles = new ArrayList<Tile>(14);
 	protected List<Tile> _discardedTiles = new ArrayList<Tile>(38);
 	protected List<SpecialMove> _specialMoves = new ArrayList<SpecialMove>(5);
-	protected List<SpecialMove> _availableSpecialMoves = new ArrayList<SpecialMove>(5);
-	protected SpecialMove _selectedSpecialMove;
+	//protected List<SpecialMove> _availableSpecialMoves = new ArrayList<SpecialMove>(5);
+	protected SpecialMove _plannedSpecialMove;
 	protected Seat _seat;
 
 	public Player(GameController controller) {
 		_gameCtrl = controller;
+		_evaluator = new Evaluator(this);
 	}
 	
 	public Evaluator evaluator() {
@@ -53,16 +54,16 @@ public abstract class Player {
 		return _specialMoves;
 	}
 	
-//	public void clearAvailableSpecialMove() {
-//		_availableSpecialMoves.clear();
-//	}
-	
-	public SpecialMove selectedSpecialMove() {
-		return _selectedSpecialMove;
+	public SpecialMove plannedSpecialMove() {
+		return _plannedSpecialMove;
 	}
 	
-	public void setSelectedSpecialMove(SpecialMove specialMove) {
-		_selectedSpecialMove = specialMove;
+	public boolean isCurrentPlayer() {
+		return (_gameCtrl.currentPlayer() == this);
+	}
+	
+	public boolean isNextPlayer() {
+		return (_gameCtrl.nextPlayer() == this);
 	}
 	
 	public Tile newTile() {
@@ -83,21 +84,35 @@ public abstract class Player {
 
 	public void resetTiles() {
 		// Assign selectable tiles
-		while (_selectableTiles.size() < GameController.PLAYER_TILE_NUM - 1) {
+		while (_selectableTiles.size() < GameController.PLAYER_TILE_NUM) {
+		//while (_selectableTiles.size() < GameController.PLAYER_TILE_NUM - 10) {
 			_selectableTiles.add(_gameCtrl.tilePool().draw());
 		}
 		
 		// Player seat
-		int index = _gameCtrl.players().indexOf(this) - _gameCtrl.players().indexOf(_gameCtrl.userPlayer());
+		int userPlayerIndex = _gameCtrl.players().indexOf(_gameCtrl.userPlayer());
+		int index = _gameCtrl.players().indexOf(this) - userPlayerIndex;
 		_seat = SEAT_VALUES[index % SEAT_VALUES.length];
+		
+//		//======= SPECIAL MOVE TEST =======
+//		SpecialMove sp = new SpecialMove(SpecialMove.Type.Pung, _gameCtrl.tilePool().draw(),
+//				_gameCtrl.tilePool().draw(), _gameCtrl.tilePool().draw());
+//		_specialMoves.add(sp);
+//		sp = new SpecialMove(SpecialMove.Type.Pung, _gameCtrl.tilePool().draw(),
+//				_gameCtrl.tilePool().draw(), _gameCtrl.tilePool().draw());
+//		_specialMoves.add(sp);
 	}
 
 	public void sortSelectableTiles(boolean enableEvent) {
 		// Sort without the new tile
 		Tile newTile = newTile();
-		_selectableTiles.remove(newTile);
+		if (newTile != null) {
+			_selectableTiles.remove(newTile);
+		}
 		Collections.sort(_selectableTiles);
-		_selectableTiles.add(newTile);
+		if (newTile != null) {
+			_selectableTiles.add(newTile);
+		}
 		
 		for (Tile tile : _selectableTiles) {
 			TileObject tileObj = tileRenderer().tileObject(tile);
@@ -106,6 +121,14 @@ public abstract class Player {
 			// Only one event will be set.
 			if (enableEvent) enableEvent = false;
 		}
+		
+//		// TEST FOR SPECIAL MOVES
+//		for (SpecialMove move : _specialMoves) {
+//			for (Tile tile : move.sortedTiles()) {
+//				TileObject tileObj = tileRenderer().tileObject(tile);
+//				tileObj.setTransformMeldedSpecialMove(this);
+//			}
+//		}
 	}
 
 	public void drawTile() {
@@ -145,11 +168,50 @@ public abstract class Player {
 
 	//=========================================================================
 	
-	public List<SpecialMove> genereateAvailableSpecialMoves() {
-		_availableSpecialMoves.clear();
-		
-		_gameCtrl.evaluator().checkSpecialMoves(this, )
-		
-		return _availableSpecialMoves;
+//	public List<SpecialMove> genereateAvailableSpecialMoves() {
+//		_availableSpecialMoves.clear();
+//		
+//		_gameCtrl.evaluator().checkSpecialMoves(this, )
+//		
+//		return _availableSpecialMoves;
+//	}
+	
+	public boolean planSelfClaimingSpecialMoves() {
+		return !_evaluator.planSelfClaimingSpecialMoves().isEmpty();
 	}
+	
+//	public List<SpecialMove> claimSpecialMoves(Tile actionTile, boolean canChow, boolean canWin) {
+//		return _evaluator.checkClaimSpecialMoves(actionTile, canChow, canWin);
+//	}
+	
+	public boolean planClaimingSpecialMoves(Tile actionTile) {
+		boolean canChow = isNextPlayer();
+		boolean canWin = false;
+		return !_evaluator.planClaimingSpecialMoves(actionTile, isCurrentPlayer(), canChow,
+														canWin).isEmpty();
+	}
+
+	/**
+	 * @Note Implementation must consider the flow to ShowSpecialMoveLabel
+	 */
+	public abstract void selectSpecialMove();
+	
+	public void claimPlannedSpecialMove() {
+		// Update the ownership of tiles in the special move
+		SpecialMove move = plannedSpecialMove();
+		move.actionPlayer().removeTileFromAllList(move.actionTile());
+		for (Tile tile : move.concealedTiles()) {
+			removeTileFromAllList(tile);
+		}
+		
+		_specialMoves.add(plannedSpecialMove());
+		
+		for (Tile tile : plannedSpecialMove().sortedTiles()) {
+			TileObject tileObj = tileRenderer().tileObject(tile);
+			tileObj.setTransformMeldedSpecialMove(this);
+		}
+		
+		sortSelectableTiles(true);
+	}
+	
 }

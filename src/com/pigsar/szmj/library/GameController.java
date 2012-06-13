@@ -1,6 +1,5 @@
 package com.pigsar.szmj.library;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,7 +42,8 @@ public class GameController implements AnimationEventListener {
 	private TilePool _tilePool;
 	private int _handCount;
 	private LinkedList<Player> _players = new LinkedList<Player>();
-	private int _userPlayerIndex;
+	//private int _userPlayerIndex;
+	private UserPlayer _userPlayer;
 	//private int _currentPlayerIndex;
 	//private int _dealerPlayerIndex;
 	private Tile _actionTile;
@@ -54,11 +54,12 @@ public class GameController implements AnimationEventListener {
 		//_evaluator = new Evaluator();
 		_tilePool = new TilePool();
 		
-		_players.add(new UserPlayer(this));
+		_userPlayer = new UserPlayer(this);
+		_players.add(_userPlayer);
 		for (int i = 1; i < PLAYER_NUM; ++i) {
 			_players.add(new ComputerPlayer(this));
 		}
-		_userPlayerIndex = 0;
+		//_userPlayerIndex = 0;
 		//_currentPlayerIndex = 0;
 		
 	}
@@ -88,7 +89,8 @@ public class GameController implements AnimationEventListener {
 	}
 	
 	public UserPlayer userPlayer() {
-		return (UserPlayer)_players.get(_userPlayerIndex);
+		//return (UserPlayer)_players.get(_userPlayerIndex);
+		return _userPlayer;
 	}
 	
 	public Player currentPlayer() {
@@ -109,11 +111,20 @@ public class GameController implements AnimationEventListener {
 	
 	private boolean passToNextPlayer() {
 		if (tilePool().isValid()) {
-			//_currentPlayerIndex = (_currentPlayerIndex + 1) % PLAYER_NUM;
-			_players.add(_players.poll());
+			interruptCurrentPlayer(nextPlayer());
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Set the current player as the given player, which maintains the player sequence.
+	 * @param player
+	 */
+	public void interruptCurrentPlayer(Player player) {
+		while (_players.get(0) != player) {
+			_players.add(_players.poll());
+		}
 	}
 
 	public void setActionTile(Tile tile) {
@@ -149,16 +160,22 @@ public class GameController implements AnimationEventListener {
 		case InitBeforeStartTurn:	ok = (next == State.DrawNewTile);				break;
 		
 		case StartHand:				ok = (next == State.DrawNewTile);				break;
-		case DrawNewTile:			ok = (next == State.SelectActionTile);			break;
+		case DrawNewTile:			ok = (next == State.SelectActionTile) ||
+										 (next == State.SelectSpecialMove);			break;	// self-claim special move
 		case SelectActionTile:		ok = (next == State.ShowActionTile);			break;
 		case ShowActionTile:		ok = (next == State.DrawNewTile ||
-										  next == State.SelectSpecialMove);			break;
+										  next == State.SelectSpecialMove);			break;	// claim special move
+										  
+		case SelectSpecialMove:		ok = (next == State.ShowSpecialMoveLabel) ||			// perform special move
+										 (next == State.SelectActionTile);			break;	// give up
+		case ShowSpecialMoveLabel:	ok = (next == State.ShowSpecialMoveTile);		break;
+		case ShowSpecialMoveTile:	ok = (next == State.SelectActionTile);			break;	// TODO: WIN!
 		
-		default:	Log.e("MJ", String.format("Unhandled State: {1}", _state.toString()));
+		default:	Log.e("GameController.transitState", String.format("Unhandled State: {1}", _state.toString()));
 		}
 		
 		if (ok) {
-			Log.d("MJ", String.format("[State] %s > %s", _state.toString(), next.toString()));
+			Log.d("GameController.transitState", String.format("[State] %s > %s", _state.toString(), next.toString()));
 			_state = next;
 		} else {
 			return;
@@ -173,16 +190,19 @@ public class GameController implements AnimationEventListener {
 		case ShowActionTile:		showActionTile();								break;
 		
 		case SelectSpecialMove:		selectSpecialMove();							break;
+		case ShowSpecialMoveLabel:	showSpecialMoveLabel();							break;
+		case ShowSpecialMoveTile:	showSpecialMoveTile();							break;
 		
-		default:	Log.e("MJ", String.format("State %s no corresponding function", next.toString()));
+		default:	Log.e("GameController.transitState", String.format("State %s no corresponding function", next.toString()));
 		}
 	}
 	
 	public void onAnimationFinished(Object sender) {
 		switch (state()) {
 		case InitBeforeStartTurn: 	transitState(State.DrawNewTile);				break;
-		case DrawNewTile: 			transitState(State.SelectActionTile);			break;
+		case DrawNewTile: 			postDrawNewTile();								break;
 		case ShowActionTile:		nextTurn();										break;
+		case ShowSpecialMoveTile:	transitState(State.SelectActionTile);			break;
 		}
 	}
 	
@@ -202,31 +222,39 @@ public class GameController implements AnimationEventListener {
 	}
 	
 	private void nextTurn() {
-		
-		if (claimDiscardedTile()) {
-			// Claim success
-			transitState(State.SelectSpecialMove);
+		Log.d("GameController.nextTurn", "Start other players claim for special move evaluation");
+		for (Player player : _players) {
+			if (player.planClaimingSpecialMoves(_actionTile)) {
+				// TEMP
+				// Claim success
+				Log.d("GameController.nextTurn", "PLayer claim succeed!");
+				interruptCurrentPlayer(player);
+				transitState(State.SelectSpecialMove);
+				return;
+			}
 		}
-
 		
 		if (passToNextPlayer()) {
 			// Next turn
-			//List<SpecialMove> specialMoves = _evaluator.checkSpecialMoves(currentPlayer());
-			List<SpecialMove> specialMoves = currentPlayer().evaluator().checkSpecialMoves();
-		
+			Log.d("GameController.nextTurn", "Really pass to next player");
 			transitState(State.DrawNewTile);
 		} else {
 			// End game
+			Log.d("GameController.nextTurn", "End Game");
 		}
-	}
-	
-	private void selectSpecialMove() {
-		
 	}
 	
 	private void drawNewTile() {
 		currentPlayer().drawTile();
 		// PS: Transit state after animation finished.
+	}
+	
+	private void postDrawNewTile() {
+		if (currentPlayer().planSelfClaimingSpecialMoves()) {
+			transitState(State.SelectSpecialMove);
+		} else {
+			transitState(State.SelectActionTile);
+		}
 	}
 	
 	private void selectActionTile() {
@@ -235,6 +263,24 @@ public class GameController implements AnimationEventListener {
 	
 	private void showActionTile() {
 		SoundManager.instance().playDiscard();
+	}
+	
+	private void selectSpecialMove() {
+		// Select a special move by AI or user. 
+		currentPlayer().selectSpecialMove();
+	}
+	
+	private void showSpecialMoveLabel() {
+		// TODO: show label
+		
+		// TEMP
+		transitState(State.ShowSpecialMoveTile);
+	}
+	
+	private void showSpecialMoveTile() {
+		currentPlayer().claimPlannedSpecialMove();
+		
+		// PS: Transit state after animation finished.
 	}
 	
 	//============== Process event =================
@@ -247,64 +293,65 @@ public class GameController implements AnimationEventListener {
 	
 	//=========================================================================
 	
-	private List<SpecialMove> getAvailableSpecialMoves(Player player) {
-		List<SpecialMove> availableSpecialMoves = _evaluator.checkSpecialMoves(player);
-		return availableSpecialMoves;
-	}
+//	private List<SpecialMove> getAvailableSpecialMoves(Player player) {
+//		List<SpecialMove> availableSpecialMoves = _evaluator.checkSpecialMoves(player);
+//		return availableSpecialMoves;
+//	}
 	
-	private List<SpecialMove> getAvailableSpecialMoves(Player player, boolean canChow) {
-		List<SpecialMove> availableSpecialMoves = _evaluator.checkSpecialMoves(player, _actionTile,
-													canChow, false /*canWin*/);
-		if (!availableSpecialMoves.isEmpty()) {
-			// TODO: available special move - give up special move
-			
-			if (!availableSpecialMoves.isEmpty()) {
-				for (SpecialMove sm : availableSpecialMoves) {
-					sm.setPlayers(currentPlayer(), player);
-				}
-				
-				SpecialMove giveUpSpecialMove = new SpecialMove(SpecialMove.Type.GiveUp, _actionTile);
-				availableSpecialMoves.add(giveUpSpecialMove);
-			}
-		}
-		
-		return availableSpecialMoves;
-	}
+//	private List<SpecialMove> getAvailableSpecialMoves(Player player, boolean canChow) {
+//		List<SpecialMove> availableSpecialMoves = _evaluator.checkSpecialMoves(player, _actionTile,
+//													canChow, false /*canWin*/);
+//		if (!availableSpecialMoves.isEmpty()) {
+//			// TODO: available special move - give up special move
+//			
+//			if (!availableSpecialMoves.isEmpty()) {
+//				for (SpecialMove sm : availableSpecialMoves) {
+//					sm.setPlayers(currentPlayer(), player);
+//				}
+//				
+//				SpecialMove giveUpSpecialMove = new SpecialMove(SpecialMove.Type.GiveUp, _actionTile);
+//				availableSpecialMoves.add(giveUpSpecialMove);
+//			}
+//		}
+//		
+//		return availableSpecialMoves;
+//	}
 
-	/***
-	 * 
-	 * Refer: MahjongController.checkAvailableSpecialMove
-	 */
-	private boolean claimDiscardedTile() {
-		boolean available = false;
-		for (Player player : players()) {
-			//player.clearAvailableSpecialMove();
-			
-			if (player == currentPlayer()) {
-	            // The current player that selected action tile must give up
-				player.setSelectedSpecialMove(new SpecialMove(SpecialMove.Type.GiveUp, _actionTile));
-			} else {
-				boolean canChow = (player == nextPlayer());
-				List<SpecialMove> availableSpecialMoves = getAvailableSpecialMoves(player, canChow);
-				
-				if (availableSpecialMoves.isEmpty()) {
-					player.setSelectedSpecialMove(new SpecialMove(SpecialMove.Type.GiveUp, _actionTile));
-				} else {
-					// TEMP: always select the first special move
-					player.setSelectedSpecialMove(availableSpecialMoves.get(0));
-					
-					// TODO: Save the selection
-					
-					available = true;
-				}
-			}
-		}
-		
-		//if (available) {
-			// TODO: change state
-		//}
-		
-		return available;
-	}
+//	/***
+//	 * 
+//	 * Refer: MahjongController.checkAvailableSpecialMove
+//	 */
+//	private boolean claimDiscardedTile() {
+//		boolean available = false;
+//		for (Player player : players()) {
+//			//player.clearAvailableSpecialMove();
+//			
+//			if (player == currentPlayer()) {
+//	            // The current player that selected action tile must give up
+//				player.setSelectedSpecialMove(new SpecialMove(SpecialMove.Type.GiveUp, _actionTile));
+//			} else {
+//				boolean canChow = (player == nextPlayer());
+//				//List<SpecialMove> availableSpecialMoves = getAvailableSpecialMoves(player, canChow);
+//				List<SpecialMove> specialMoves = player.claimSpecialMoves(_actionTile, canChow, false/*canWin*/);
+//				
+//				if (specialMoves.isEmpty()) {
+//					player.setSelectedSpecialMove(new SpecialMove(SpecialMove.Type.GiveUp, _actionTile));
+//				} else {
+//					// TEMP: always select the first special move
+//					player.setSelectedSpecialMove(specialMoves.get(0));
+//					
+//					// TODO: Save the selection
+//					
+//					available = true;
+//				}
+//			}
+//		}
+//		
+//		//if (available) {
+//			// TODO: change state
+//		//}
+//		
+//		return available;
+//	}
 	
 }

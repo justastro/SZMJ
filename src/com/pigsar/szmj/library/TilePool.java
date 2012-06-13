@@ -2,11 +2,15 @@ package com.pigsar.szmj.library;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+
+import android.util.Log;
 
 public class TilePool {
 	
-	ArrayList<Tile> _tiles = new ArrayList<Tile>();
-	ArrayList<Tile> _availableTiles = new ArrayList<Tile>();
+	List<Tile> _tiles = new ArrayList<Tile>();
+	List<Tile> _usedTiles = new ArrayList<Tile>();
+	List<Tile> _availableTiles = new ArrayList<Tile>();
 	int _startGameScore;
 	int _startHandScore;
 	int _score;
@@ -15,12 +19,17 @@ public class TilePool {
 		reset();
 	}
 	
-	public ArrayList<Tile> availableTiles() {
+	public List<Tile> usedTiles() {
+		return _usedTiles;
+	}
+	
+	public List<Tile> availableTiles() {
 		return _availableTiles;
 	}
 
 	public void reset() {
 		_tiles.clear();
+		_usedTiles.clear();
 		_availableTiles.clear();
 		
 		for (int p = 0; p < 9; ++p) {
@@ -63,8 +72,11 @@ public class TilePool {
 	public Tile draw() {
 		int size = _availableTiles.size();
 		if (size > 0) {
-			return _availableTiles.remove(size - 1);
+			Tile tile = _availableTiles.remove(size - 1);
+			_usedTiles.add(tile);
+			return tile;
 		} else {
+			Log.d("TilePool", "No more available tiles in the pool.");
 			return null;
 		}
 	}

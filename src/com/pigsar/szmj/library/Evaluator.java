@@ -9,55 +9,75 @@ import com.pigsar.szmj.library.SpecialMove.Type;
 
 public class Evaluator {
 	
+	private Player				_player;
+	private List<SpecialMove>	_planningSpecialMoves = new ArrayList<SpecialMove>(5);
+	
 	private EnumMap<TilePattern.Type,List<Tile>> _tileTable
 					= new EnumMap<TilePattern.Type,List<Tile>>(TilePattern.Type.class);
 	private List<Tile>			_eyeTiles = new ArrayList<Tile>();
 	private List<Boolean>		_tileCheckers = new ArrayList<Boolean>();
 	private List<SpecialMove>	_passSpecialMoves = new ArrayList<SpecialMove>();
 	private List<SpecialMove>	_winHandSpecialMoves = new ArrayList<SpecialMove>();
-	private WinSpecialMove			_winSpecialMove;
+	private WinSpecialMove		_winSpecialMove;
 	
+	public Evaluator(Player player) {
+		_player = player;
+	}
+	
+	public List<SpecialMove> planningSpecialMoves() {
+		return _planningSpecialMoves;
+	}
 	
 	/**
 	 * The returned special moves already set the player as active player of the special moves.
-	 * @param player
-	 * @return
 	 */
-	public List<SpecialMove> checkSpecialMoves(Player player) {
-		List<SpecialMove> specialMoves = new ArrayList<SpecialMove>();
-		Tile actionTile = player.newTile();
+	public List<SpecialMove> planSelfClaimingSpecialMoves(/*Player player*/) {
+		//List<SpecialMove> specialMoves = new ArrayList<SpecialMove>();
+		_planningSpecialMoves.clear();
 		_winSpecialMove = null;
+		Tile actionTile = _player.newTile();
 		
-		initializeTileTable(player.selectableTiles());
-		examinateSmallKong(player, specialMoves);
-		examinateConcealedKong(specialMoves);
-		win(player, actionTile);
-		specialWin(player, actionTile);
+		initializeTileTable(_player.selectableTiles());
+		examinateSmallKong(_planningSpecialMoves);
+		examinateConcealedKong(_planningSpecialMoves);
+		win(actionTile);
+		specialWin(actionTile);
 		
-		//#############################
-		for (SpecialMove specialMove : specialMoves) {
-			specialMove.setPlayers(player, player);
+		// Set all the planning special moves with player as action player
+		for (SpecialMove specialMove : _planningSpecialMoves) {
+			specialMove.setRelatedPlayers(_player);
 		}
-		//#############################
 		
-		return specialMoves;
+		return _planningSpecialMoves;
 	}
 	
-	public List<SpecialMove> checkSpecialMoves(Player player, Tile actionTile, boolean canChow, boolean canWin) {
-		List<SpecialMove> specialMoves = new ArrayList<SpecialMove>();
+	public List<SpecialMove> planClaimingSpecialMoves(Tile actionTile, boolean isCurrentPlayer,
+														boolean canChow, boolean canWin) {
+		//List<SpecialMove> specialMoves = new ArrayList<SpecialMove>();
+		_planningSpecialMoves.clear();
 		_winSpecialMove = null;
 		
-		initializeTileTable(player.selectableTiles());
-		if (canChow) {
-			// TODO
-		}
-		pung(actionTile, specialMoves);
-		//bigKong(actionTile, specialMoves);
-		if (canWin) {
-			// TODO
+		if (isCurrentPlayer) {
+//			_planningSpecialMoves.add(new SpecialMove(SpecialMove.Type.GiveUp, actionTile));
+		} else {
+		
+			initializeTileTable(_player.selectableTiles());
+			if (canChow) {
+				// TODO
+			}
+			pung(actionTile, _planningSpecialMoves);
+			//bigKong(actionTile, specialMoves);
+			if (canWin) {
+				// TODO
+			}
 		}
 		
-		return specialMoves;
+		// Set all the planning special moves with player as action player
+		for (SpecialMove specialMove : _planningSpecialMoves) {
+			specialMove.setRelatedPlayers(_player);
+		}
+		
+		return _planningSpecialMoves;
 	}
 	
 	//=========================================================================
@@ -128,15 +148,14 @@ public class Evaluator {
 	 * @param player
 	 * @param outMoves
 	 */
-	private void examinateSmallKong(Player player, List<SpecialMove> outMoves) {
-		for (SpecialMove move : player.specialMoves()) {
+	private void examinateSmallKong(/*Player player, */List<SpecialMove> outMoves) {
+		for (SpecialMove move : _player.specialMoves()) {
 			if ( move.type() == SpecialMove.Type.Pung) {
 				List<Tile> tiles = _tileTable.get(move.actionTile().pattern().type());
 				for (Tile tile : tiles) {
 					if (tile.pattern().equals(move.actionTile())) {
 						SpecialMove newMove = new SpecialMove(SpecialMove.Type.SmallKong,
 																tile, move);
-						outMoves.add(newMove);
 					}
 				}
 			}
@@ -175,7 +194,7 @@ public class Evaluator {
 		}
 	}
 	
-	private void win(Player player, Tile actionTile) {
+	private void win(/*Player player, */Tile actionTile) {
 		SpecialMove eyeSpecialMove = null;
 		boolean haveEye = false;
 		
@@ -217,14 +236,14 @@ public class Evaluator {
 			_winHandSpecialMoves.add(eyeSpecialMove);
 		//}
 			
-		Collections.reverse(player.specialMoves());				// TODO: problem??
-		_winHandSpecialMoves.addAll(player.specialMoves());
+		Collections.reverse(_player.specialMoves());				// TODO: problem??
+		_winHandSpecialMoves.addAll(_player.specialMoves());
 		
 		//mahjongPoints(player);
 	}
 	
-	private void specialWin(Player player, Tile actionTile) {
-		handThirteenOrphans(player, actionTile);
+	private void specialWin(/*Player player, */Tile actionTile) {
+		handThirteenOrphans(/*player, */actionTile);
 	}
 	
 	private void resetTileCheckers(int minimumSize) {
@@ -345,6 +364,7 @@ public class Evaluator {
 			return false;
 		}
 		
+		// Chow never consist by bonus tile
 		Tile tile = tiles.get(index);
 		if (tile.isBonusTile()) {
 			return false;
@@ -368,7 +388,7 @@ public class Evaluator {
 					secondIndex = i;
 				}
 			} else if (near.pattern().number() - tile.pattern().number() == 2) {
-				if (secondIndex != -1) {
+				if (secondIndex == -1) {
 					return false;
 				} else if (!_tileCheckers.get(i).booleanValue()) {
 					// Found third
@@ -393,8 +413,8 @@ public class Evaluator {
 		
 	}
 	
-	void handThirteenOrphans(Player player, Tile actionTile) {
-		if (player.specialMoves().size() > 0) {
+	void handThirteenOrphans(/*Player player, */Tile actionTile) {
+		if (_player.specialMoves().size() > 0) {
 			return;
 		}
 		
